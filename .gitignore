@@ -1,9 +1,9 @@
 # repo-specific
 
-!output/
-output/*
-!output/plots/
-logs_slurm
+!batchnorm/output/
+batchnorm/output/*
+!batchnorm/output/plots/
+batchnorm/logs_slurm
 .vscode/
 
 # Byte-compiled / optimized / DLL files
