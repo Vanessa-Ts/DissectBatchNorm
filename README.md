@@ -7,9 +7,8 @@ Study of BatchNorm components in DL models.
 
 ## Table of Contents
 1. [Installation](#installation)
-2. [Virtual environment](#virtual-environment)
-3. [Getting started](#getting-started)
-4. [Extending the code](#extending-the-code)
+2. [Getting started](#getting-started)
+3. [Extending the code](#extending-the-code)
 
 ## Installation
 
@@ -35,13 +34,18 @@ Full environment description can be found [here](conda_env.yml)
 
 ### Run models
 
+- the training loop is defines in 
+
 ``` python
-python run_trainingLoop.py TUNING_CONF=configs/basic_config.yaml PROBLEM="cifar100_allcnnc_bn" OPTIMIZER=SGD RANDOM_SEED=4842821
+python run_trainingLoop.py TUNING_CONF=configs/basic_config.yaml PROBLEM="cifar10_3c3d_bn" OPTIMIZER=SGD RANDOM_SEED=4842821 ABLATION=trained_bn POSITION=0,0,0,0,0
 ```
 
 - To run on the cluster, we have the `.sbatch` files, which specify the resources and paramters to explore
 
-- Results are stored in the [`output` folder](batchnorm/output/)
+- Results are stored in the [`output` folder](batchnorm/output/). Each run creates several files:
+    - the layer biases (Vanilla) / learnable BatchNorm parameters (gamma/beta) in separate hdf5 files
+    - a log file containing training, validation and test metrics
+    - final model is stored in a pth file
 
 
 

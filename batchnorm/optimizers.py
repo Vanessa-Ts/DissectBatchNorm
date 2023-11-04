@@ -10,7 +10,7 @@ import inspect
 #
 import torch
 #
-from .schedules import ConstantSchedule, CosineSchedule, TrapezoidalSchedule, \
+from schedules import ConstantSchedule, CosineSchedule, TrapezoidalSchedule, \
     CosineWrSchedule
 
 

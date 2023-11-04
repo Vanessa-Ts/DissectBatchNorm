@@ -20,12 +20,12 @@ import numpy as np
 #
 from deepobs.config import set_data_dir
 #
-from batchnorm.config_io import get_config
-from batchnorm.logging import JsonColorLogger, make_timestamp
-from batchnorm.testproblems import get_obs_testproblem, get_obs_BNtestproblem
-from batchnorm.incremental_hdf5 import IncrementalHDF5
-import batchnorm.optimizers
-from batchnorm.testproblems.bn_models import get_model_params, get_model_bias
+from configs.config_io import get_config
+from color_logging import JsonColorLogger, make_timestamp
+from testproblems import get_obs_testproblem, get_obs_BNtestproblem
+from incremental_hdf5 import IncrementalHDF5
+import optimizers
+from testproblems.bn_models import get_model_params, get_model_bias
 
 import matplotlib.pyplot as plt
 
@@ -71,7 +71,7 @@ class ConfDef:
     OBS_DATASETS: str = "batchnorm/output/deepobs_datasets"
     TUNING_CONF: str = "configs/basic_config.yaml"
     OPTIMIZER: str = "SGD"
-    PROBLEM: str = "cifar100_allcnnc_bn"
+    PROBLEM: str = "cifar10_3c3d_bn"
     #
     RANDOM_SEED: int = MISSING
     MAX_STEPS: Optional[int] = None
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     max_steps = (conf.MAX_STEPS if conf.MAX_STEPS is not None else
                  (num_epochs * steps_per_epoch))
 
-    opt_class = getattr(dlnorm.optimizers, "Scheduled" + conf.OPTIMIZER)
+    opt_class = getattr(optimizers, "Scheduled" + conf.OPTIMIZER)
     opt = opt_class(model.parameters(), **opt_hpars, lr_sched=None)
 
 

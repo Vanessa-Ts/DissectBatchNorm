@@ -20,7 +20,7 @@ import csv
 import h5py
 import pickle
 from scipy.signal import savgol_filter
-from batchnorm.logging import ColorLogger, make_timestamp
+from batchnorm.color_logging import ColorLogger, make_timestamp
 from batchnorm.incremental_hdf5 import IncrementalHDF5
 
 import tueplots as tplt
@@ -36,15 +36,10 @@ functions:
     - performance_across_ablations: compare training loss and accuracy of the models across all ablation modifications for one position
     - compare_ablation_performance: compare the loss of the models across all ablation modifications for two positions respectively
     - compare_multiple_lr: compare training loss and accuracy of the models across different learning rates
-    - plot_paramMean_perLayer: plot the mean of the beta and gamma parameters for each layer across training time
-    - bn_params_3Dsurface: plot the beta and gamma parameters for each layer across training time as a contpour plot and a 3D surface plot
-
-
-    - compare_earlylate: compare the results of the models with same capacity but at early or late position in the netowrk for all for ablation modes
-    - plot_compareBounds: Compare performance of each model (meaning one position) with Vanilla and fullBN - initial plot for every model for all 4 ablations in one plot
-    - plot_bnParams_perLayer: Compare beta and gamma respectively for each layer compare against vanilla bias for each layer and 5layer full bn beta
-    - plot_bnParams_Convergence: plot to compare beta and gama params at convergence for all ablation modes, compare with model with 5 layer fullBN and Vanilla
-    - compare_multiple_lr: Create plot to compare loss and accuracy for different lr
+    - paramMean_perLayer: plot the mean of the beta and gamma parameters for each layer across training time
+    - bn_params_3Dsurface: plot the beta and gamma parameters for each layer of a model as a contpour plot and a 3D surface plot
+    - compare_3Dsurface_betas: plot 3D surface of the beta parameters for each layer across modifications of a model
+    - compare_contour_betas: plot contour plot of the beta parameters for each layer across modifications of a model 
 """
 
 
@@ -282,13 +277,13 @@ def performance_across_ablations(paths, smooth_curve=False):
 
 
 #################################################################################################
-# Example usage
+# Usage Example
 #
-#model_paths = [f"batchnorm/output/4842821__cifar100_3c3d_bn__{x}/Lr_0.16579130972807002/Ep_350/{y}" for x, y 
+# model_paths = [f"batchnorm/output/4842821__cifar100_3c3d_bn__{x}/Lr_0.16579130972807002/Ep_350/{y}" for x, y 
 #                in zip(["0,0,0,0,0", *["0,0,1,1,1"] * 4],
 #                 ["trained_bn", "trained_bn", "fixed_bn", "fixed_gamma", "fixed_beta"])]
 #
-#performance_across_ablations(model_paths, smooth_curve=False)
+# performance_across_ablations(model_paths, smooth_curve=False)
 #################################################################################################
 
 
@@ -452,7 +447,7 @@ def compare_multiple_lr(paths):
 #################################################################################################
 
 
-def plot_paramMean_perLayer(Vanilla_path, fullBN_path, paths):
+def paramMean_perLayer(Vanilla_path, fullBN_path, paths):
 
     """
     Input Path structure:
@@ -604,7 +599,7 @@ def bn_params_3Dsurface(sort_by_converged, affine_param, path):
     Usage example:
         paths_AffineParams_gamma = [
             "batchnorm/output/4842821__cifar100_allcnnc_bn__1,0,0,0,0,0,0,0,0/Lr_0.16579130972807002/Ep_350/trained_bn",
-            "batchnorm/output/4842821__cifar100_allcnnc_bn__1,0,0,0,0,0,0,0,0/Lr_0.16579130972807002/Ep_350/fixed_gamma"
+            "batchnorm/output/4842821__cifar100_allcnnc_bn__1,0,0,0,0,0,0,0,0/Lr_0.16579130972807002/Ep_350/fixed_beta"
         ]
 
         for i, path in enumerate(paths_AffineParams_gamma):
@@ -785,7 +780,7 @@ def bn_params_3Dsurface(sort_by_converged, affine_param, path):
 
 
 
-def compare_3d_surface_betas(sort_by_converged, Vanilla_path, fullBN_path, trained_bn_path, fixed_gamma_path):
+def compare_3Dsurface_betas(sort_by_converged, Vanilla_path, fullBN_path, trained_bn_path, fixed_gamma_path):
     """
     Args:
     sort_by_converged (boolean): if True, sort dimensions by converged value
@@ -949,10 +944,9 @@ def compare_3d_surface_betas(sort_by_converged, Vanilla_path, fullBN_path, train
                 ax.set_title(f'{position}{ablation_labels.get(ablation_modes[col])} Betas (Layer {layer_position[row]})')
                 
         #fig.suptitle(f"Comparison of betas across Batch Norm layers: ({position})  \n (seed {seed}, problem {problem}, lr {lr}), batch size {batch_size}")#, y=0.9)
-        #plt.savefig(os.path.join(plot_dir, f"{seed}_BetaActivity_Comparison_{position}_3D.png"), dpi=350)
         plt.savefig(os.path.join(plot_dir, f"{seed}_BetaActivity_Comparison_{position}_3D.png"), dpi=350)
-        #plt.show()
-        #breakpoint()
+        
+
         # Create contour plots
         fig2 = plt.figure(figsize=(15, 3*max(1,len(shapes))))
         # Plotting for beta_full_list
@@ -1009,26 +1003,10 @@ def compare_3d_surface_betas(sort_by_converged, Vanilla_path, fullBN_path, train
         #fig2.suptitle(f"Comparison of betas across Batch Norm layers:{position} \n (seed {seed}, problem {problem}, lr {lr}), batch size {batch_size}")#, y=0.9)
         plt.savefig(os.path.join(plot_dir, f"{seed}_BetaActivity_Comparison_{position}_contourplot.png"), dpi=350)
         #plt.show()
+        #plt.close()
 
 
-# Test Case
-
-
-#input_paths = ["batchnorm/output/4842821__cifar10_3c3d_bn__0,0,0,0,0/Lr_0.022610510812765/Ep_100/trained_bn",
-#                "batchnorm/output/4842821__cifar10_3c3d_bn__1,1,1,1,1/Lr_0.022610510812765/Ep_100/trained_bn",
-#                "batchnorm/output/4842821__cifar10_3c3d_bn__1,0,0,0,0/Lr_0.022610510812765/Ep_100/trained_bn",
-#                "batchnorm/output/4842821__cifar10_3c3d_bn__1,0,0,0,0/Lr_0.022610510812765/Ep_100/fixed_gamma",
-#                "batchnorm/output/4842821__cifar10_3c3d_bn__1,0,0,0,0/Lr_0.022610510812765/Ep_100/fixed_beta",
-#]
-
-input_paths = [f"batchnorm/output/4842821__cifar10_3c3d_bn__{x}/Lr_0.022610510812765/Ep_100/{y}" for x, y 
-                in zip(["0,0,0,0,0", "1,1,1,1,1", *["0,1,1,1,1"] * 3],
-                 ["trained_bn", "trained_bn", "trained_bn", "fixed_gamma", "fixed_beta"])]
-
-
-#compare_3d_surface_betas(True, input_paths[0], input_paths[1], input_paths[2], input_paths[3])
-
-def contour_betas(sort_by_converged, Vanilla_path, fullBN_path, trained_bn_path, fixed_gamma_path):
+def compare_contour_betas(sort_by_converged, Vanilla_path, fullBN_path, trained_bn_path, fixed_gamma_path):
     """
     Args:
     sort_by_converged (boolean): if True, sort dimensions by converged value
@@ -1205,467 +1183,3 @@ def contour_betas(sort_by_converged, Vanilla_path, fullBN_path, trained_bn_path,
 
 
 
-#################################################################################################
-# Analyze Gammas
-#################################################################################################
-
-
-def compare_3d_surface_gammas(sort_by_converged, fullBN_path, trained_bn_path, fixed_beta_path):
-    """
-    Args:
-    sort_by_converged: sort gammas by value at convergence/ end of training
-    fullBN_path (string): path to model with all BatchNorm layers
-    trained_bn_path (string): path to model with BatchNorm layers at a specified position and ablation_mode is trained_bn
-    fixed_beta_path (string): path to model with BatchNorm layers at a specified position and ablation mode is fixed_gamma (because we plot betas here)
-
-    Returns:
-    None. Creates 3D plot of the gamma values for each layer across training time for Vanilla, fullBN, trained_bn and fixed_gamma models
-    """
-
-    # Preprocess data for plots
-    log_fullBN = read_log(fullBN_path)
-    shapes_fullBN = log_fullBN["SETTINGS"]["shapes"][0]
-    fullBN_position = log_fullBN["PARAMETERS"]["POSITION"][0]
-    fullBN_ablation = log_fullBN["PARAMETERS"]["ABLATION"][0]
-
-    path_full_gamma = get_file_path(fullBN_path, "gamma.h5")
-    full_gammas = get_parameter_values(path_full_gamma, shapes_fullBN)
-    full_gamma_values_transposed = [gamma.T for gamma in full_gammas]
-
-    log_trained = read_log(trained_bn_path)
-    shapes = log_trained["SETTINGS"]["shapes"][0]
-    position = log_trained["PARAMETERS"]["POSITION"][0]
-    seed = log_trained["PARAMETERS"]["RANDOM_SEED"][0]
-    num_epochs = log_trained["SETTINGS"]["num_epochs"][0]
-    problem = log_trained["PARAMETERS"]["PROBLEM"][0]
-    lr = log_trained["SETTINGS"]["opt_hpars"].apply(lambda x: x["lr"])[0]
-    batch_size = log_trained["SETTINGS"]["batch_size"][0]
-    ablation_trained = log_trained["PARAMETERS"]["ABLATION"][0]
-
-    position_str = ''.join(str(i) for i in position)
-    layer_position = [i+1 for i, val in enumerate(position_str.split(',')) if val == '1']       
-
-    path_trained_gamma = get_file_path(trained_bn_path, "gamma.h5")
-    trained_gammas = get_parameter_values(path_trained_gamma, shapes)
-    trained_gamma_values_transposed = [gamma.T for gamma in trained_gammas]  
-
-    log_fixedB = read_log(fixed_beta_path)
-    ablation_fixedB = log_fixedB["PARAMETERS"]["ABLATION"][0]
-    path_fixedB_gamma = get_file_path(fixed_beta_path, "gamma.h5")
-    fixedB_gamma = get_parameter_values(path_fixedB_gamma, shapes)
-    fixedB_gamma_values_transposed = [gamma.T for gamma in fixedB_gamma]
-
-    # Create data lists for plotting
-    gamma_full_list = [full_gamma_values_transposed]
-    gamma_position_list = [trained_gamma_values_transposed, fixedB_gamma_values_transposed]
-    ablation_modes = [ablation_trained, ablation_fixedB]
-
-
-    # Create output dir
-    name = "ParameterActivity_Comparison"
-    plot_dir = create_plot_dir(seed, problem, num_epochs, lr, name)
-
-    num_cols = len(gamma_full_list) + len(gamma_position_list)
-    num_rows = max(1,len(shapes))
-
-    ablation_labels = {
-        'trained_bn': '$_\\beta, _\\gamma$',
-        'fixed_bn': '$_-$',
-        'fixed_gamma': '$_\\beta$',
-        'fixed_beta': '$_\\gamma$'
-        }
-    # VScales to use if colormap should be consistent
-    # Compute min and max values for each layer across all plots
-    layer_min_values = {}
-    layer_max_values = {}
-    max_deviation_from_one = {}
-
-    # Compute min and max values for each layer across all plots in one row
-    # For gamma_full_list
-    for params in gamma_full_list:
-        for i, pos in enumerate(layer_position):
-            Z = params[pos-1]
-            deviation = np.max(np.abs(Z - 1))
-            if pos not in layer_min_values:
-                layer_min_values[pos] = np.min(Z)
-            else:
-                layer_min_values[pos] = min(layer_min_values[pos], np.min(Z))
-            if pos not in layer_max_values:
-                layer_max_values[pos] = np.max(Z)
-            else:
-                layer_max_values[pos] = max(layer_max_values[pos], np.max(Z))
-            if pos not in max_deviation_from_one:
-                max_deviation_from_one[pos] = deviation
-            else:
-                max_deviation_from_one[pos] = max(max_deviation_from_one[pos], deviation)
-
-    # For beta_position_list
-    for params in gamma_position_list:
-        for i, layer in enumerate(shapes):
-            Z = params[i]
-            pos = layer_position[i]
-            layer_min_values[pos] = min(layer_min_values[pos], np.min(Z))
-            layer_max_values[pos] = max(layer_max_values[pos], np.max(Z))
-            deviation = np.max(np.abs(Z - 1))
-            max_deviation_from_one[pos] = max(max_deviation_from_one[pos], deviation)
-
-    # Create 3D plots using matplotlib
-    with plt.rc_context({**bundles.aistats2022(family="serif"), **tplt.axes.lines()}):
-        tplt.axes.lines()
-        plt.rcParams.update(tplt.axes.tick_direction(x="inout", y="in"))
-        plt.rcParams.update(cycler.cycler(color=palettes.tue_plot))
-        plt.rcParams.update(tplt.figsizes.neurips2021(nrows=2, ncols=3))
-        plt.rcParams.update(tplt.fontsizes.neurips2021())
-            
-        fig = plt.figure(figsize=(10, 3.5*max(1,len(shapes))))
-
-        for i, pos in enumerate(layer_position):
-            # Create a meshgrid for the neurons and training steps
-            neurons = np.arange(shapes[i][0])
-            steps = np.arange(0, full_gamma_values_transposed[pos-1].shape[0] * 5, 5)#[:100] ###############################################################################################################################################################
-            X, Y = np.meshgrid(neurons, steps)
-            Z = full_gamma_values_transposed[pos-1]
-            # sort dimensions by converged value
-            if sort_by_converged:
-                Z = Z[:,Z[-1].argsort()]
-            
-            #Z = Z[:100] ###############################################################################################################################################################
-
-            ax_idx = i * num_cols + 1 if num_rows > 1 else 1
-            ax = fig.add_subplot(num_rows, num_cols, ax_idx, projection='3d', proj_type='ortho')
-            ax.plot_surface(X, Y, Z, cstride=1, rstride=5, cmap='bwr', vmin= 1 - max_deviation_from_one[pos], vmax= 1 + max_deviation_from_one[pos])
-            ax.view_init(elev=30, azim=-45)
-            ax.set_box_aspect(None, zoom=0.9)
-            ax.set_zlim(layer_min_values[pos], layer_max_values[pos])
-            ax.set_xlabel('dimension')
-            ax.set_ylabel('training step')
-            ax.set_title(f'{fullBN_position}{ablation_labels.get(fullBN_ablation)} Gammas (Layer{pos})')
-    
-
-        # Plotting for gamma_position_list
-        offset = len(gamma_full_list)
-        for col, params in enumerate(gamma_position_list):
-            for row, layer in enumerate(shapes):
-                # Create a meshgrid for the neurons and training steps
-                neurons = np.arange(layer[0])
-                steps = np.arange(0, params[row].shape[0] * 5, 5)#[:100] ###############################################################################################################################################################
-                X, Y = np.meshgrid(neurons, steps)
-                Z = params[row]
-                # sort dimensions by converged value
-                if sort_by_converged:
-                    Z = Z[:,Z[-1].argsort()]
-                
-                #Z = Z[:100] ###############################################################################################################################################################
-
-                ax_idx = offset + col + row * num_cols + 1 if num_rows > 1 else offset + col + 1
-                ax = fig.add_subplot(num_rows, num_cols, ax_idx, projection='3d', proj_type='ortho')
-                ax.plot_surface(X, Y, Z, cstride=1, rstride=5, cmap='bwr', vmin= 1 - max_deviation_from_one[layer_position[row]], vmax= 1 + max_deviation_from_one[layer_position[row]])
-                ax.view_init(elev=30, azim=-45)
-                ax.set_box_aspect(None, zoom=0.9)
-                ax.set_zlim(layer_min_values[layer_position[row]], layer_max_values[layer_position[row]])
-                ax.set_xlabel('dimension')
-                ax.set_ylabel('training step')
-                ax.set_title(f'{position}{ablation_labels.get(ablation_modes[col])} Gammas (Layer {layer_position[row]})')
-
-        #fig.suptitle(f"Comparison of gammas across Batch Norm layers: ({position})  \n (seed {seed}, problem {problem}, lr {lr}), batch size {batch_size}")
-        plt.savefig(os.path.join(plot_dir, f"{seed}_GammaActivity_Comparison_{position}.png"), dpi=350)
-        #plt.show()
-        breakpoint()
-        fig2 = plt.figure(figsize=(10, 3*max(1,len(shapes))))
-
-        for i, pos in enumerate(layer_position):
-            neurons = np.arange(shapes[i][0])
-            steps = np.arange(0, full_gamma_values_transposed[pos-1].shape[0] * 5, 5)#[:100]###############################################################################################################################################################
-            X, Y = np.meshgrid(neurons, steps)
-            Z = full_gamma_values_transposed[pos-1]
-
-            if sort_by_converged:
-                Z = Z[:,Z[-1].argsort()]
-
-            #Z = Z[:100] ###############################################################################################################################################################
-
-            ax_idx = i * num_cols + 1 if num_rows > 1 else 1
-            ax2 = fig2.add_subplot(num_rows, num_cols, ax_idx)
-            c = ax2.contourf(
-                X, Y, Z, 
-                levels=np.linspace(layer_min_values[pos], layer_max_values[pos], 100), 
-                cmap='bwr', 
-                vmin= 1 - max_deviation_from_one[pos], 
-                vmax= 1 + max_deviation_from_one[pos],
-                )
-            ax2.set_xlabel('dimension')
-            ax2.set_ylabel('training step')
-            ax2.set_title(f'{fullBN_position}{ablation_labels.get(fullBN_ablation)} Gammas (Layer{pos})')
-
-        # Plotting for gamma_position_list
-        offset = len(gamma_full_list)
-        for col, params in enumerate(gamma_position_list):
-            for row, layer in enumerate(shapes):
-                # Create a meshgrid for the neurons and training steps
-                neurons = np.arange(layer[0])
-                steps = np.arange(0, params[row].shape[0] * 5, 5)#[:100] ###############################################################################################################################################################
-                X, Y = np.meshgrid(neurons, steps)
-                Z = params[row]
-
-                if sort_by_converged:
-                    Z = Z[:,Z[-1].argsort()]
-
-                #Z = Z[:100] ###############################################################################################################################################################
-
-                ax_idx = offset + col + row * num_cols + 1 if num_rows > 1 else offset + col + 1
-                ax2 = fig2.add_subplot(num_rows, num_cols, ax_idx)
-                c = ax2.contourf(
-                    X, Y, Z, 
-                    levels=np.linspace(layer_min_values[layer_position[row]], layer_max_values[layer_position[row]], 100), 
-                    cmap='bwr', 
-                    vmin= 1 - max_deviation_from_one[layer_position[row]], 
-                    vmax= 1 + max_deviation_from_one[layer_position[row]],
-                    )
-                ax2.set_xlabel('dimension')
-                ax2.set_ylabel('training step')
-                ax2.set_title(f'{position}{ablation_labels.get(ablation_modes[col])} Gammas (Layer {layer_position[row]})')
-                if col+offset == num_cols - 1:
-                     fig2.colorbar(c)
-        plt.savefig(os.path.join(plot_dir, f"{seed}_GammaActivity_Comparison_{position}_contourplot.png"), dpi=350)
-        #plt.show()
-
-# Test Cases:
-#compare_3d_surface_gammas(True, input_paths[1], input_paths[2], input_paths[4])
-
-
-
-#################################################################################################
-def contour_gammas(sort_by_converged, fullBN_path, trained_bn_path, fixed_beta_path):
-    """
-    Args:
-    sort_by_converged (boolean): if True, sort dimensions by converged value
-    fullBN_path (string): path to model with all BatchNorm layers
-    trained_bn_path (string): path to model with BatchNorm layers at a specified position and ablation_mode is trained_bn
-    fixed_beta_path (string): path to model with BatchNorm layers at a specified position and ablation mode is fixed_gamma (because we plot betas here)
-
-    Returns:
-    None. Creates 2D contour plot of the gamma values for each layer across training time for Vanilla, fullBN, trained_bn and fixed_gamma models
-    """
-
-    # Preprocess data for plots
-    log_fullBN = read_log(fullBN_path)
-    shapes_fullBN = log_fullBN["SETTINGS"]["shapes"][0]
-    fullBN_position = log_fullBN["PARAMETERS"]["POSITION"][0]
-    fullBN_ablation = log_fullBN["PARAMETERS"]["ABLATION"][0]
-
-    path_full_gamma = get_file_path(fullBN_path, "gamma.h5")
-    full_gammas = get_parameter_values(path_full_gamma, shapes_fullBN)
-    full_gamma_values_transposed = [gamma.T for gamma in full_gammas]
-
-    log_trained = read_log(trained_bn_path)
-    shapes = log_trained["SETTINGS"]["shapes"][0]
-    position = log_trained["PARAMETERS"]["POSITION"][0]
-    seed = log_trained["PARAMETERS"]["RANDOM_SEED"][0]
-    num_epochs = log_trained["SETTINGS"]["num_epochs"][0]
-    problem = log_trained["PARAMETERS"]["PROBLEM"][0]
-    lr = log_trained["SETTINGS"]["opt_hpars"].apply(lambda x: x["lr"])[0]
-    batch_size = log_trained["SETTINGS"]["batch_size"][0]
-    ablation_trained = log_trained["PARAMETERS"]["ABLATION"][0]
-
-    position_str = ''.join(str(i) for i in position)
-    layer_position = [i+1 for i, val in enumerate(position_str.split(',')) if val == '1']
-
-    path_trained_gamma = get_file_path(trained_bn_path, "gamma.h5")
-    trained_gammas = get_parameter_values(path_trained_gamma, shapes)
-    trained_gamma_values_transposed = [gamma.T for gamma in trained_gammas]
-
-    log_fixedB = read_log(fixed_beta_path)
-    ablation_fixedB = log_fixedB["PARAMETERS"]["ABLATION"][0]
-    path_fixedB_gamma = get_file_path(fixed_beta_path, "gamma.h5")
-    fixedB_gamma = get_parameter_values(path_fixedB_gamma, shapes)
-    fixedB_gamma_values_transposed = [gamma.T for gamma in fixedB_gamma]
-
-    # Create data lists for plotting
-    gamma_full_list = [full_gamma_values_transposed]
-    gamma_position_list = [trained_gamma_values_transposed, fixedB_gamma_values_transposed]
-    ablation_modes = [ablation_trained, ablation_fixedB]
-
-    # Create output dir
-    name = "ParameterActivity_Comparison"
-    plot_dir = create_plot_dir(seed, problem, num_epochs, lr, name)
-
-    num_cols = len(gamma_full_list) + len(gamma_position_list)
-    num_rows = max(1,len(shapes))
-
-    ablation_labels = {
-        'trained_bn': '$_\\beta, _\\gamma$',
-        'fixed_bn': '$_-$',
-        'fixed_gamma': '$_\\beta$',
-        'fixed_beta': '$_\\gamma$'
-        }
-    # VScales to use if colormap should be consistent
-    layer_min_values = {}
-    layer_max_values = {}
-    max_deviation_from_one = {}
-
-    # Compute min and max values for each layer across all plots in one row
-    # For gamma_full_list
-    for params in gamma_full_list:
-        for i, pos in enumerate(layer_position):
-            Z = params[pos-1]
-            deviation = np.max(np.abs(Z - 1))
-            if pos not in layer_min_values:
-                layer_min_values[pos] = np.min(Z)
-            else:
-                layer_min_values[pos] = min(layer_min_values[pos], np.min(Z))
-            if pos not in layer_max_values:
-                layer_max_values[pos] = np.max(Z)
-            else:
-                layer_max_values[pos] = max(layer_max_values[pos], np.max(Z))
-            if pos not in max_deviation_from_one:
-                max_deviation_from_one[pos] = deviation
-            else:
-                max_deviation_from_one[pos] = max(max_deviation_from_one[pos], deviation)
-
-    # For gamma_position_list
-    for params in gamma_position_list:
-        for i, layer in enumerate(shapes):
-            Z = params[i]
-            pos = layer_position[i]
-            layer_min_values[pos] = min(layer_min_values[pos], np.min(Z))
-            layer_max_values[pos] = max(layer_max_values[pos], np.max(Z))
-            deviation = np.max(np.abs(Z - 1))
-            max_deviation_from_one[pos] = max(max_deviation_from_one[pos], deviation)
-
-    # Create 2D contour plots using matplotlib
-    with plt.rc_context({**bundles.aistats2022(family="serif"), **tplt.axes.lines()}):
-        tplt.axes.lines()
-        plt.rcParams.update(tplt.axes.tick_direction(x="inout", y="in"))
-        plt.rcParams.update(cycler.cycler(color=palettes.tue_plot))
-        plt.rcParams.update(tplt.figsizes.neurips2021(nrows=2, ncols=3))
-        plt.rcParams.update(tplt.fontsizes.neurips2021())
-
-        fig = plt.figure(figsize=(10, 3*max(1,len(shapes))))
-
-        # Plotting for gamma_full_list
-        for i, pos in enumerate(layer_position):
-            # Create a meshgrid for the neurons and training steps
-            neurons = np.arange(shapes[i][0])
-            steps = np.arange(0, full_gamma_values_transposed[pos-1].shape[0] * 5, 5)#[:100]###############################################################################################################################################################
-            X, Y = np.meshgrid(neurons, steps)
-            Z = full_gamma_values_transposed[pos-1]
-            # sort dimensions by converged value
-            if sort_by_converged:
-                Z = Z[:,Z[-1].argsort()]
-            
-            #Z = Z[:100] ###############################################################################################################################################################
-
-            ax_idx = i * num_cols + 1 if num_rows > 1 else 1
-            ax = fig.add_subplot(num_rows, num_cols, ax_idx)
-            c = ax.contourf(
-                X, Y, Z, 
-                levels=np.linspace(layer_min_values[pos], layer_max_values[pos], 100), 
-                cmap='bwr', 
-                vmin=1 - max_deviation_from_one[pos],
-                vmax=1 + max_deviation_from_one[pos]
-                )
-            ax.set_xlabel('dimension')
-            ax.set_ylabel('training step')
-            ax.set_title(f'{fullBN_position}{ablation_labels.get(fullBN_ablation)} Gammas (Layer{pos})')
-
-        # Plotting for gamma_position_list
-        offset = len(gamma_full_list)
-        for col, params in enumerate(gamma_position_list):
-            for row, layer in enumerate(shapes):
-                neurons = np.arange(layer[0])
-                steps = np.arange(0, params[row].shape[0] * 5, 5)#[:100]###############################################################################################################################################################
-                X, Y = np.meshgrid(neurons, steps)
-                Z = params[row]
-                # sort dimensions by converged value
-                if sort_by_converged:
-                    Z = Z[:,Z[-1].argsort()]
-
-                #Z = Z[:100] ###############################################################################################################################################################
-
-                ax_idx = offset + col + row * num_cols + 1 if num_rows > 1 else offset + col + 1
-                ax = fig.add_subplot(num_rows, num_cols, ax_idx)
-                c = ax.contourf(
-                    X, Y, Z, 
-                    levels=np.linspace(layer_min_values[layer_position[row]], layer_max_values[layer_position[row]], 100), 
-                    cmap='bwr', 
-                    vmin= 1 - max_deviation_from_one[layer_position[row]], 
-                    vmax= 1 + max_deviation_from_one[layer_position[row]],
-                    )
-                ax.set_xlabel('dimension')
-                ax.set_ylabel('training step')
-                ax.set_title(f'{position}{ablation_labels.get(ablation_modes[col])} Gammas (Layer {layer_position[row]})')
-                if col+offset == num_cols - 1:
-                    fig.colorbar(c)
-            
-        #fig.suptitle(f"Comparison of gammas across Batch Norm layers: ({position})  \n (seed {seed}, problem {problem}, lr {lr}), batch size {batch_size}")
-        plt.savefig(os.path.join(plot_dir, f"{seed}_GammaActivity_Comparison_{position}_contourplot.png"), dpi=350)
-        #plt.show()
-#contour_gammas(True, input_paths[1], input_paths[2], input_paths[4])
-
-
-#################################################################################################
-
-def plot_3D_params_perLayer(dir_path):
-
-    """
-    """
-
-    log_path = read_log(dir_path)
-    shapes = log_path["SETTINGS"]["shapes"][0]
-
-    position = log_path["PARAMETERS"]["POSITION"][0]
-    seed = log_path["PARAMETERS"]["RANDOM_SEED"][0]
-    num_epochs = log_path["SETTINGS"]["num_epochs"][0]
-    problem = log_path["PARAMETERS"]["PROBLEM"][0]
-    lr = log_path["SETTINGS"]["opt_hpars"].apply(lambda x: x["lr"])[0]
-    name = "ParameterActivity_perModel"
-    batch_size = log_path["SETTINGS"]["batch_size"][0]
-    ablation_mode = log_path["PARAMETERS"]["ABLATION"][0]
-
-    position_str = ''.join(str(i) for i in position)
-    layer_position = [i+1 for i, val in enumerate(position_str.split(',')) if val == '1']       
-        
-
-    plot_dir = create_plot_dir(seed, problem, num_epochs, lr, name)
-
-    path_beta = get_file_path(dir_path, "beta.h5")
-    betas = get_parameter_values(path_beta, shapes)
-
-    # Preprocess data for plot
-    beta_values_transposed = [beta.T for beta in betas]
-
-    # Create 3D plot using matplotlib
-    with plt.rc_context({**bundles.aistats2022(family="serif"), **tplt.axes.lines()}):
-        tplt.axes.lines()
-        plt.rcParams.update(tplt.axes.tick_direction(x="inout", y="in"))
-        plt.rcParams.update(cycler.cycler(color=palettes.tue_plot))
-        plt.rcParams.update(tplt.figsizes.neurips2021(nrows=2, ncols=3))
-        plt.rcParams.update(tplt.fontsizes.neurips2021())
-            
-        fig = plt.figure(figsize=(6, 6))
-
-
-        for i, layer in enumerate(shapes):
-            # Create a meshgrid for the neurons and training steps
-            neurons = np.arange(layer[0])
-            steps = np.arange(0, beta_values_transposed[i].shape[0] * 5, 5)
-            X, Y = np.meshgrid(neurons, steps)
-
-            ax = fig.add_subplot(1, len(shapes),i+1, projection='3d')
-            ax.plot_surface(X, Y, beta_values_transposed[i], cmap='rainbow')
-
-            # Set labels and title
-            ax.set_xlabel('dimension')
-            ax.set_ylabel('training step')
-            ax.set_title(f'Layer {layer_position[i]} Betas')        
-        
-        
-        fig.suptitle(f"Comparison of Parameter Activity across Batch Norm Layers: ({position})  \n (seed {seed}, problem {problem}, lr {lr}), batch size {batch_size}")
-        plt.tight_layout()
-        plt.savefig(os.path.join(plot_dir, f"{seed}_ParameterActivity_perLayer_{position}.png"), dpi=350)
-        plt.show()
-
-#################################################################################################
-## Test functions
-#plot_3D_params_perLayer("batchnorm/output/4842821__cifar100_allcnnc_bn__1,0,0,0,0,0,0,0,0/Lr_0.16579130972807002/Ep_350/trained_bn")
-#plot_3D_params_perLayer("batchnorm/output/4842821__cifar100_allcnnc_bn__0,0,0,0,0,0,0,1,1/Lr_0.16579130972807002/Ep_350/trained_bn")

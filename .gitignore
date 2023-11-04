@@ -4,6 +4,7 @@
 batchnorm/output/*
 !batchnorm/output/plots/
 batchnorm/logs_slurm
+res
 .vscode/
 
 # Byte-compiled / optimized / DLL files

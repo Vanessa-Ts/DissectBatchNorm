@@ -1,4 +1,4 @@
-name: dlnorm
+name: bnenv
 channels:
   - pytorch
   - plotly
@@ -236,4 +236,4 @@ dependencies:
     - tueplots==0.0.9
     - tzdata==2023.3
     - webcolors==1.13
-prefix: /home/v/anaconda3/envs/dlnorm
+prefix: /home/v/anaconda3/envs/bnenv

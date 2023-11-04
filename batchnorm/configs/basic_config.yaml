@@ -1,0 +1,62 @@
+cifar10_3c3d:
+# Use lr according to the baselines from DeepOBS paper (10^-1-10^-2)
+# Results from DeepOBS paper:
+# Test acc: >83% after 100 epochs, train acc: >90% after 100 epochs
+# Train loss: <0.9 after 100 epochs, train loss: 0.6<loss<0.7  after 100 epochs
+  SGD:
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.022610510812765
+  SGDLTH: 
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.022610510812765
+  # general
+  batch_size: 128
+  num_epochs: 100
+
+
+cifar10_3c3d_bn:
+  # lr was tuned in a previous project (by Andres)
+  SGD:
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.022610510812765 #0.022610510812765
+  SGDLTH: 
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.022610510812765
+  # general
+  batch_size: 128
+  num_epochs: 100
+
+
+cifar100_3c3d_bn:
+  SGD:
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.016579130972807002 
+  SGDLTH: 
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.022610510812765
+  # general
+  batch_size: 256
+  num_epochs: 350
+
+
+cifar100_allcnnc_bn:
+  Adam:  
+    lr_schedule: null
+    opt_hpars:
+      beta1: 0.520979105520824
+      beta2: 0.9426922726980611
+      eps: 1.0e-08
+      lr: 0.0005712829313120001
+  SGD: 
+    lr_schedule: null
+    opt_hpars:
+      lr: 0.016579130972807003
+  # general
+  batch_size: 256
+  num_epochs: 500
