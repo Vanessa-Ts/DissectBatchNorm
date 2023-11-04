@@ -77,7 +77,7 @@ class ConfDef:
     MAX_STEPS: Optional[int] = None
     DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
     #
-    OUTPUT_DIR: str = "batchnorm/output"
+    OUTPUT_DIR: str = "output"
     LOG_EVERY_STEPS: int = 5
 
     ABLATION: str = field(default=MISSING, metadata={'validate': lambda x: x in AblationOption._value2member_map_})   

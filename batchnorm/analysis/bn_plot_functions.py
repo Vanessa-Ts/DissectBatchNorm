@@ -20,8 +20,8 @@ import csv
 import h5py
 import pickle
 from scipy.signal import savgol_filter
-from batchnorm.color_logging import ColorLogger, make_timestamp
-from batchnorm.incremental_hdf5 import IncrementalHDF5
+from ..color_logging import ColorLogger, make_timestamp
+from ..incremental_hdf5 import IncrementalHDF5
 
 import tueplots as tplt
 from tueplots import cycler, bundles
@@ -158,11 +158,6 @@ def performance_across_ablations(paths, smooth_curve=False):
     """
     txt_logger = ColorLogger(f"[{os.path.basename(sys.argv[0])}]")
     txt_logger.info("PARAMETERS")
-
-
-    # read log into dataframe and gather basic stats
-    #keys = ["PARAMETERS", "SETTINGS", "EVAL ROUND", "BATCH"]
-    #logs = [read_and_process_log(path) for path in paths]
 
     # Read data of Vanilla model
     log_Vanilla = read_log(paths[0])
@@ -371,6 +366,19 @@ def compare_ablation_performance(paths):
         fig.savefig(os.path.join(plot_dir, f"{seed}_ep_{num_epochs}_Loss_comparison_{logs1[2]['position']}_and_{logs2[2]['position']}.svg"), dpi=350)
         plt.close(fig)
 
+        paths_ablations_1layer = [
+            "batchnorm/output/4842821__cifar100_3c3d_bn__0,0,0,0,0/Lr_0.16579130972807002/Ep_350/trained_bn",
+            "batchnorm/output/4842821__cifar100_3c3d_bn__1,1,1,1,1/Lr_0.16579130972807002/Ep_350/trained_bn",
+            "batchnorm/output/4842821__cifar100_3c3d_bn__1,0,0,0,0/Lr_0.16579130972807002/Ep_350/trained_bn",
+            "batchnorm/output/4842821__cifar100_3c3d_bn__0,0,0,0,1/Lr_0.16579130972807002/Ep_350/trained_bn", 
+            "batchnorm/output/4842821__cifar100_3c3d_bn__1,0,0,0,0/Lr_0.16579130972807002/Ep_350/fixed_bn", 
+            "batchnorm/output/4842821__cifar100_3c3d_bn__0,0,0,0,1/Lr_0.16579130972807002/Ep_350/fixed_bn",
+            "batchnorm/output/4842821__cifar100_3c3d_bn__1,0,0,0,0/Lr_0.16579130972807002/Ep_350/fixed_beta",
+            "batchnorm/output/4842821__cifar100_3c3d_bn__0,0,0,0,1/Lr_0.16579130972807002/Ep_350/fixed_beta", 
+            "batchnorm/output/4842821__cifar100_3c3d_bn__1,0,0,0,0/Lr_0.16579130972807002/Ep_350/fixed_gamma", 
+            "batchnorm/output/4842821__cifar100_3c3d_bn__0,0,0,0,1/Lr_0.16579130972807002/Ep_350/fixed_gamma",
+            ]
+        compare_ablation_performance(paths_ablations_1layer)
 
 #################################################################################################
 # Plot function for learning rate comparison

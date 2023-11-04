@@ -278,7 +278,7 @@ class BN_UnregularizedTestproblem(BN_TestProblem):
             batch_size (int): Batch size to use.
             l2_reg (float): L2-Regularization (weight decay) factor to use.
         """
-        super(UnregularizedTestproblem, self).__init__(batch_size, l2_reg)
+        super(BN_UnregularizedTestproblem, self).__init__(batch_size, l2_reg)
 
     def get_regularization_groups(self):
         """Create regularization groups for the parameters.
